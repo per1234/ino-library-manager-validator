@@ -45,16 +45,22 @@ ARDUINO_CI_SCRIPT_FOLDER="${HOME}/scripts/arduino-ci-script"
   [[ "${lines[3]}" =~ $outputRegex ]]
 }
 
-# Invalid INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL argument
-@test "../ino-library-manager-validator.sh \"$TEMPORARY_FOLDER\" \"${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh\" 'foobar'" {
+# Compliant library with missing scheme on URL
+@test "../ino-library-manager-validator.sh \"$TEMPORARY_FOLDER\" \"${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh\" 'github.com/adafruit/Adafruit_DHT_Unified'" {
   #skip
-  expectedExitStatus=1
-  run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'foobar'
+  expectedExitStatus=0
+  run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'github.com/adafruit/Adafruit_DHT_Unified'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 1 ]
-  outputRegex='^ERROR: Invalid URL: foobar$'
+  [ "${#lines[@]}" -eq 4 ]
+  outputRegex='^Cloning the library repository...$'
   [[ "${lines[0]}" =~ $outputRegex ]]
+  outputRegex='^Checking out latest tag:'
+  [[ "${lines[1]}" =~ $outputRegex ]]
+  outputRegex='^Checking if library name Adafruit DHT Unified is already taken...$'
+  [[ "${lines[2]}" =~ $outputRegex ]]
+  outputRegex='^Library name is not taken$'
+  [[ "${lines[3]}" =~ $outputRegex ]]
 }
 
 # No tags
