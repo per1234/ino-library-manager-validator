@@ -13,11 +13,26 @@ INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL=$3
 
 readonly INO_LIBRARY_MANAGER_VALIDATOR_PREVIOUS_FOLDER="$PWD"
 
+readonly INO_LIBRARY_MANAGER_VALIDATOR_SUCCESS_EXIT_STATUS=0
+readonly INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS=1
+
+# Set default exit status
+INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS="$INO_LIBRARY_MANAGER_VALIDATOR_SUCCESS_EXIT_STATUS"
+
 # Clean up
 function cleanup() {
   cd "$INO_LIBRARY_MANAGER_VALIDATOR_PREVIOUS_FOLDER" || return 1
   # Remove the temporary folder
   rm --force --recursive "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER"
+}
+
+function setExitStatus() {
+  local -r newExitStatus="$1"
+
+  # Only update exit status if it's a change from success to failure
+  if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS" == "$INO_LIBRARY_MANAGER_VALIDATOR_SUCCESS_EXIT_STATUS" ]]; then
+    INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS="$newExitStatus"
+  fi
 }
 
 if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER" == "" ]]; then
@@ -94,31 +109,46 @@ cd "$INO_LIBRARY_MANAGER_VALIDATOR_PREVIOUS_FOLDER" || {
   return 1
 }
 
-if ! [[ -e "${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH}/library.properties" ]]; then
-  echo "ERROR: No library.properties found in the root of the repository"
-  cleanup
-  exit 1
-fi
-# Determine the library name
+# source arduino-ci-script so its functions can be used
 # shellcheck source=/dev/null
 source "$INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH"
 
-# Check whether the library name is already taken
-readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PROPERTIES=$(tr "\r" "\n" <"${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH}/library.properties")
-readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME="$(get_library_properties_field_value "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PROPERTIES" 'name')"
-if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME" == "" ]]; then
-  echo "ERROR: Unable to determine library name"
-  cleanup
-  exit 1
-fi
-echo "Checking if library name $INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME is already taken..."
-if ! python "$(dirname "$0")/checkforduplicatelibraryname/checkforduplicatelibraryname.py" --libraryname "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME"; then
-  cleanup
-  exit 1
+# Check if there is a library.properties
+if ! [[ -e "${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH}/library.properties" ]]; then
+  echo "ERROR: No library.properties found in the root of the repository"
+  setExitStatus "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
+else
+  # These actions can only be done if there is a library.properties
+
+  # Determine the library name
+
+  # Check whether the library name is already taken
+  readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PROPERTIES=$(tr "\r" "\n" <"${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH}/library.properties")
+  readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME="$(get_library_properties_field_value "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PROPERTIES" 'name')"
+  if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME" == "" ]]; then
+    echo "ERROR: Unable to determine library name"
+    setExitStatus "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
+  fi
+  echo "Checking if library name $INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME is already taken..."
+  if ! python "$(dirname "$0")/checkforduplicatelibraryname/checkforduplicatelibraryname.py" --libraryname "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME"; then
+    setExitStatus "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
+  fi
+
+  # Run check_library_properties
+  # NOTE: not all failures of check_library_properties block acceptance to the Arduino Library Manager index
+  echo "Checking library.properties..."
+  check_library_properties "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH"
+  setExitStatus $?
 fi
 
 # Run check_library_manager_compliance
+echo "Running additional checks for compliance with the Library Manager requirements..."
 check_library_manager_compliance "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH"
-readonly INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS=$?
+setExitStatus $?
+
+if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS" == "0" ]]; then
+  INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS="$CHECK_LIBRARY_MANAGER_COMPLIANCE_EXIT_STATUS"
+fi
+
 cleanup
 exit "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS"
