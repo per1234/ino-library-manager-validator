@@ -13,9 +13,13 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 1 ]
+  [ "${#lines[@]}" -eq 3 ]
   outputRegex='^ERROR: INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER argument not specified$'
   [[ "${lines[0]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[1]}" =~ $outputRegex ]]
+  outputRegex='^FAILED! The library is not compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[2]}" =~ $outputRegex ]]
 }
 
 # Missing INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH argument
@@ -25,9 +29,13 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER"
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 1 ]
+  [ "${#lines[@]}" -eq 3 ]
   outputRegex='^ERROR: INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH argument not specified$'
   [[ "${lines[0]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[1]}" =~ $outputRegex ]]
+  outputRegex='^FAILED! The library is not compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[2]}" =~ $outputRegex ]]
 }
 
 # Compliant library with trailing slash on URL
