@@ -44,6 +44,7 @@ function exitScript() {
   if [[ -d "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER" ]]; then
     rm --force --recursive "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER"
   fi
+
   # Print a message to indicate the result of the script
   if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS" == "$INO_LIBRARY_MANAGER_VALIDATOR_SUCCESS_EXIT_STATUS" ]]; then
     echo $'\nSUCCESS! The library is compliant with the requirements for addition to the Library Manager index.'
@@ -97,16 +98,20 @@ cd "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER" || {
 git clone --quiet "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL" || {
   exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
+
 # Determine the repository folder name
 readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH="${INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER}/$(basename --suffix=.git "${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL}")"
+
 # checkout the latest tag of the repository
 cd "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH" || {
   exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
-# get new tags from the remote
+
+# Get new tags from the remote
 git fetch --quiet --tags || {
   exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
+
 # checkout the latest tag
 INO_LIBRARY_MANAGER_VALIDATOR_LATEST_TAG="$(git describe --tags "$(git rev-list --tags --max-count=1)")"
 if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_LATEST_TAG" == "" ]]; then
@@ -133,14 +138,14 @@ else
   # These actions can only be done if there is a library.properties
 
   # Determine the library name
-
-  # Check whether the library name is already taken
   readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PROPERTIES=$(tr "\r" "\n" <"${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH}/library.properties")
   readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME="$(get_library_properties_field_value "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PROPERTIES" 'name')"
   if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME" == "" ]]; then
     echo "ERROR: Unable to determine library name"
     setExitStatus "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
   fi
+
+  # Check whether the library name is already taken
   echo "Checking if library name $INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME is already taken..."
   if ! python "$(dirname "$0")/checkforduplicatelibraryname/checkforduplicatelibraryname.py" --libraryname "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_NAME"; then
     setExitStatus "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
