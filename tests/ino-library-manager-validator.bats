@@ -44,6 +44,8 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   expectedExitStatus=0
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified/'
   echo "Exit status: $status | Expected: $expectedExitStatus"
+  echo "#lines[@]: ${#lines[@]}"
+  echo "lines[8]: ${lines[8]}"
   [ $status -eq $expectedExitStatus ]
   [ "${#lines[@]}" -eq 10 ]
   outputRegex='^Cloning the library repository\.\.\.$'
