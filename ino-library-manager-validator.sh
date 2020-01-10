@@ -153,9 +153,5 @@ echo "Running additional checks for compliance with the Library Manager requirem
 check_library_manager_compliance "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH"
 setExitStatus $?
 
-if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS" == "0" ]]; then
-  INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS="$CHECK_LIBRARY_MANAGER_COMPLIANCE_EXIT_STATUS"
-fi
-
 cleanup
 exit "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS"
