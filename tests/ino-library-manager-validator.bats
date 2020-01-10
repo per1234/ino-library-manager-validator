@@ -37,7 +37,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified/'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 8 ]
+  [ "${#lines[@]}" -eq 10 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -54,6 +54,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[6]}" =~ $outputRegex ]]
   outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
   [[ "${lines[7]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[8]}" =~ $outputRegex ]]
+  outputRegex='^SUCCESS! The library is compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[9]}" =~ $outputRegex ]]
 }
 
 # Compliant library with missing scheme on URL
@@ -63,7 +67,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'github.com/adafruit/Adafruit_DHT_Unified'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 8 ]
+  [ "${#lines[@]}" -eq 10 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -80,6 +84,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[6]}" =~ $outputRegex ]]
   outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
   [[ "${lines[7]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[8]}" =~ $outputRegex ]]
+  outputRegex='^SUCCESS! The library is compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[9]}" =~ $outputRegex ]]
 }
 
 # Compliant library with .git extension on URL
@@ -89,7 +97,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified.git'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 8 ]
+  [ "${#lines[@]}" -eq 10 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -106,6 +114,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[6]}" =~ $outputRegex ]]
   outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
   [[ "${lines[7]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[8]}" =~ $outputRegex ]]
+  outputRegex='^SUCCESS! The library is compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[9]}" =~ $outputRegex ]]
 }
 
 # Compliant library with standard URL
@@ -115,7 +127,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 8 ]
+  [ "${#lines[@]}" -eq 10 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -132,6 +144,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[6]}" =~ $outputRegex ]]
   outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
   [[ "${lines[7]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[8]}" =~ $outputRegex ]]
+  outputRegex='^SUCCESS! The library is compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[9]}" =~ $outputRegex ]]
 }
 
 # No tags
@@ -141,13 +157,17 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/Ark-IoT/Ark-Cpp'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 3 ]
+  [ "${#lines[@]}" -eq 5 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^fatal: No names found, cannot describe anything\.'
   [[ "${lines[1]}" =~ $outputRegex ]]
   outputRegex='^ERROR: The library repository has no tags$'
   [[ "${lines[2]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[3]}" =~ $outputRegex ]]
+  outputRegex='^FAILED! The library is not compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[4]}" =~ $outputRegex ]]
 }
 
 # Test latest version checkout commands
@@ -158,7 +178,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/sparkfun/SFE_CC3000_Library'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 4 ]
+  [ "${#lines[@]}" -eq 6 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag: v1\.6$'
@@ -167,6 +187,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[2]}" =~ $outputRegex ]]
   outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
   [[ "${lines[3]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[4]}" =~ $outputRegex ]]
+  outputRegex='^FAILED! The library is not compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[5]}" =~ $outputRegex ]]
 }
 
 # Library name is taken
@@ -176,7 +200,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/arduino-libraries/Stepper'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 6 ]
+  [ "${#lines[@]}" -eq 8 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -189,6 +213,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[4]}" =~ $outputRegex ]]
   outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
   [[ "${lines[5]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[6]}" =~ $outputRegex ]]
+  outputRegex='^FAILED! The library is not compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[7]}" =~ $outputRegex ]]
 }
 
 # Library name not taken
@@ -199,7 +227,7 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/winkj/arduino-sdp'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 8 ]
+  [ "${#lines[@]}" -eq 10 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -216,4 +244,8 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[6]}" =~ $outputRegex ]]
   outputRegex="^ERROR: ${TEMPORARY_FOLDER}/arduino-sdp/library\.properties: name value: arduino-sdp starts with "'"arduino"\. These names are reserved for official Arduino libraries\.$'
   [[ "${lines[7]}" =~ $outputRegex ]]
+  outputRegex='^$'
+  [[ "${lines[8]}" =~ $outputRegex ]]
+  outputRegex='^FAILED! The library is not compliant with the requirements for addition to the Library Manager index\.$'
+  [[ "${lines[9]}" =~ $outputRegex ]]
 }
