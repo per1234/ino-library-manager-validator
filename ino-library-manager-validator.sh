@@ -19,13 +19,6 @@ readonly INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS=1
 # Set default exit status
 INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS="$INO_LIBRARY_MANAGER_VALIDATOR_SUCCESS_EXIT_STATUS"
 
-# Clean up
-function cleanup() {
-  cd "$INO_LIBRARY_MANAGER_VALIDATOR_PREVIOUS_FOLDER" || return 1
-  # Remove the temporary folder
-  rm --force --recursive "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER"
-}
-
 function setExitStatus() {
   local -r newExitStatus="$1"
 
@@ -35,19 +28,45 @@ function setExitStatus() {
   fi
 }
 
+function exitScript() {
+  local -r newExitStatus="$1"
+
+  # Set exit status, if one was specified as an argument to the function
+  if [[ "$newExitStatus" != "" ]]; then
+    setExitStatus "$newExitStatus"
+  fi
+
+  # Clean up
+  cd "$INO_LIBRARY_MANAGER_VALIDATOR_PREVIOUS_FOLDER" || {
+    exit "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
+  }
+  # Remove temporary folder
+  if [[ -d "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER" ]]; then
+    rm --force --recursive "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER"
+  fi
+  # Print a message to indicate the result of the script
+  if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS" == "$INO_LIBRARY_MANAGER_VALIDATOR_SUCCESS_EXIT_STATUS" ]]; then
+    echo $'\nSUCCESS! The library is compliant with the requirements for addition to the Library Manager index.'
+  else
+    echo $'\nFAILED! The library is not compliant with the requirements for addition to the Library Manager index.'
+  fi
+
+  exit "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS"
+}
+
 if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER" == "" ]]; then
   echo "ERROR: INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER argument not specified"
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 fi
 
 if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH" == "" ]]; then
   echo "ERROR: INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH argument not specified"
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 fi
 
 if ! [[ -e "$INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH" ]]; then
   echo "ERROR: $INO_LIBRARY_MANAGER_VALIDATOR_ARDUINO_CI_SCRIPT_PATH does not exist"
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 fi
 
 if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL" == "" ]]; then
@@ -73,40 +92,33 @@ mkdir --parents "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER"
 # clone the repository
 echo "Cloning the library repository..."
 cd "$INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER" || {
-  cleanup
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
 git clone --quiet "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL" || {
-  cleanup
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
 # Determine the repository folder name
 readonly INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH="${INO_LIBRARY_MANAGER_VALIDATOR_TEMPORARY_FOLDER}/$(basename --suffix=.git "${INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_URL}")"
 # checkout the latest tag of the repository
 cd "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH" || {
-  cleanup
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
 # get new tags from the remote
 git fetch --quiet --tags || {
-  cleanup
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
 # checkout the latest tag
 INO_LIBRARY_MANAGER_VALIDATOR_LATEST_TAG="$(git describe --tags "$(git rev-list --tags --max-count=1)")"
 if [[ "$INO_LIBRARY_MANAGER_VALIDATOR_LATEST_TAG" == "" ]]; then
   echo "ERROR: The library repository has no tags"
-  cleanup
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 fi
 echo "Checking out latest tag: $INO_LIBRARY_MANAGER_VALIDATOR_LATEST_TAG"
 git checkout --quiet "$INO_LIBRARY_MANAGER_VALIDATOR_LATEST_TAG" || {
-  cleanup
-  exit 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
 cd "$INO_LIBRARY_MANAGER_VALIDATOR_PREVIOUS_FOLDER" || {
-  cleanup
-  return 1
+  exitScript "$INO_LIBRARY_MANAGER_VALIDATOR_FAILURE_EXIT_STATUS"
 }
 
 # source arduino-ci-script so its functions can be used
@@ -153,5 +165,4 @@ echo "Running additional checks for compliance with the Library Manager requirem
 check_library_manager_compliance "$INO_LIBRARY_MANAGER_VALIDATOR_LIBRARY_PATH"
 setExitStatus $?
 
-cleanup
-exit "$INO_LIBRARY_MANAGER_VALIDATOR_EXIT_STATUS"
+exitScript
