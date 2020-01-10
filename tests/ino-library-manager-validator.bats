@@ -33,11 +33,11 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
 # Compliant library with trailing slash on URL
 @test "../ino-library-manager-validator.sh \"$TEMPORARY_FOLDER\" \"${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh\" 'https://github.com/adafruit/Adafruit_DHT_Unified/'" {
   #skip
-  expectedExitStatus=$ARDUINO_CI_SCRIPT_CHECK_LIBRARY_PROPERTIES_REDUNDANT_PARAGRAPH_EXIT_STATUS
+  expectedExitStatus=0
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified/'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 7 ]
+  [ "${#lines[@]}" -eq 8 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -50,18 +50,20 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[4]}" =~ $outputRegex ]]
   outputRegex="^ERROR: ${TEMPORARY_FOLDER}/Adafruit_DHT_Unified/library\.properties: paragraph value repeats the sentence\. These strings are displayed one after the other in Library Manager so there is no point in redundancy\.$"
   [[ "${lines[5]}" =~ $outputRegex ]]
-  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  outputRegex="^NOTE: The above error does not block acceptance to the Arduino Library Manager index, but it's recommended to fix it anyway\.$"
   [[ "${lines[6]}" =~ $outputRegex ]]
+  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  [[ "${lines[7]}" =~ $outputRegex ]]
 }
 
 # Compliant library with missing scheme on URL
 @test "../ino-library-manager-validator.sh \"$TEMPORARY_FOLDER\" \"${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh\" 'github.com/adafruit/Adafruit_DHT_Unified'" {
   #skip
-  expectedExitStatus=$ARDUINO_CI_SCRIPT_CHECK_LIBRARY_PROPERTIES_REDUNDANT_PARAGRAPH_EXIT_STATUS
+  expectedExitStatus=0
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'github.com/adafruit/Adafruit_DHT_Unified'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 7 ]
+  [ "${#lines[@]}" -eq 8 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -74,18 +76,20 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[4]}" =~ $outputRegex ]]
   outputRegex="^ERROR: ${TEMPORARY_FOLDER}/Adafruit_DHT_Unified/library\.properties: paragraph value repeats the sentence\. These strings are displayed one after the other in Library Manager so there is no point in redundancy\.$"
   [[ "${lines[5]}" =~ $outputRegex ]]
-  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  outputRegex="^NOTE: The above error does not block acceptance to the Arduino Library Manager index, but it's recommended to fix it anyway\.$"
   [[ "${lines[6]}" =~ $outputRegex ]]
+  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  [[ "${lines[7]}" =~ $outputRegex ]]
 }
 
 # Compliant library with .git extension on URL
 @test "../ino-library-manager-validator.sh \"$TEMPORARY_FOLDER\" \"${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh\" 'https://github.com/adafruit/Adafruit_DHT_Unified.git'" {
   #skip
-  expectedExitStatus=$ARDUINO_CI_SCRIPT_CHECK_LIBRARY_PROPERTIES_REDUNDANT_PARAGRAPH_EXIT_STATUS
+  expectedExitStatus=0
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified.git'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 7 ]
+  [ "${#lines[@]}" -eq 8 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -98,18 +102,20 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[4]}" =~ $outputRegex ]]
   outputRegex="^ERROR: ${TEMPORARY_FOLDER}/Adafruit_DHT_Unified/library\.properties: paragraph value repeats the sentence\. These strings are displayed one after the other in Library Manager so there is no point in redundancy\.$"
   [[ "${lines[5]}" =~ $outputRegex ]]
-  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  outputRegex="^NOTE: The above error does not block acceptance to the Arduino Library Manager index, but it's recommended to fix it anyway\.$"
   [[ "${lines[6]}" =~ $outputRegex ]]
+  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  [[ "${lines[7]}" =~ $outputRegex ]]
 }
 
 # Compliant library with standard URL
 @test "../ino-library-manager-validator.sh \"$TEMPORARY_FOLDER\" \"${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh\" 'https://github.com/adafruit/Adafruit_DHT_Unified'" {
   #skip
-  expectedExitStatus=$ARDUINO_CI_SCRIPT_CHECK_LIBRARY_PROPERTIES_REDUNDANT_PARAGRAPH_EXIT_STATUS
+  expectedExitStatus=0
   run ../ino-library-manager-validator.sh "$TEMPORARY_FOLDER" "${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh" 'https://github.com/adafruit/Adafruit_DHT_Unified'
   echo "Exit status: $status | Expected: $expectedExitStatus"
   [ $status -eq $expectedExitStatus ]
-  [ "${#lines[@]}" -eq 7 ]
+  [ "${#lines[@]}" -eq 8 ]
   outputRegex='^Cloning the library repository\.\.\.$'
   [[ "${lines[0]}" =~ $outputRegex ]]
   outputRegex='^Checking out latest tag:'
@@ -122,8 +128,10 @@ source ${ARDUINO_CI_SCRIPT_FOLDER}/arduino-ci-script.sh
   [[ "${lines[4]}" =~ $outputRegex ]]
   outputRegex="^ERROR: ${TEMPORARY_FOLDER}/Adafruit_DHT_Unified/library\.properties: paragraph value repeats the sentence\. These strings are displayed one after the other in Library Manager so there is no point in redundancy\.$"
   [[ "${lines[5]}" =~ $outputRegex ]]
-  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  outputRegex="^NOTE: The above error does not block acceptance to the Arduino Library Manager index, but it's recommended to fix it anyway\.$"
   [[ "${lines[6]}" =~ $outputRegex ]]
+  outputRegex='^Running additional checks for compliance with the Library Manager requirements\.\.\.$'
+  [[ "${lines[7]}" =~ $outputRegex ]]
 }
 
 # No tags
