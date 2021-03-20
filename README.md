@@ -4,6 +4,13 @@ Script to check whether a library meets the requirements for inclusion in the [A
 
 https://github.com/arduino/Arduino/wiki/Library-Manager-FAQ
 
+## DEPRECATION NOTICE
+
+Good news everyone! Arduino has now created an official tool that can be used for checking for compliance with the Arduino Library Manager requirements:
+https://arduino.github.io/arduino-lint/latest/#library-manager-setting
+
+This tool will no longer be maintained. Please use Arduino Lint.
+
 ### Dependencies
 - Python 3
 - [arduino-ci-script](https://github.com/per1234/arduino-ci-script)
